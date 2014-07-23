@@ -36,7 +36,8 @@ message = args.getfirst("message", "")
 rowarrayc = []
 
 if query == "conversation":
-	cursor.execute("select * from message where user_id_sender IN(" + user_id_sender + "," +  user_id_receiver + ") and user_id_receiver IN(" + user_id_sender + "," + user_id_receiver + ") order by sent ASC")
+	#cursor.execute("select * from message where user_id_sender IN(" + user_id_sender + "," +  user_id_receiver + ") and user_id_receiver IN(" + user_id_sender + "," + user_id_receiver + ") order by sent ASC")
+	cursor.execute("select * from message where user_id_sender IN(%s, %s) and user_id_receiver IN(%s, %s) order by sent ASC", (user_id_sender, user_id_receiver, user_id_sender, user_id_receiver))
 	
 	rows = cursor.fetchall()
 	
@@ -114,7 +115,8 @@ http://localhost/cgi-bin/server.cgi?q=read&user_id_sender=3&user_id_receiver=4
 rowarrayi = []
 
 if query == "newMessages":
-    cursor.execute("select * from message where user_id_receiver = " + user_id_receiver + " AND `read` is NULL;")
+    #cursor.execute("select * from message where user_id_receiver = " + user_id_receiver + " AND `read` is NULL;")
+    cursor.execute("select * from message where user_id_receiver = %s AND `read` is NULL;", (user_id_receiver))
     rows = cursor.fetchall()
 
     for row in rows:

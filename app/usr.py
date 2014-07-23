@@ -7,22 +7,11 @@ This module handles HTTP requests from the Hiof-commuting app and
 returns json objects containing user credentials.
 """
 
-import cgi
-"""import cgitb; cgitb.enable()"""
-import MySQLdb
 import json
 import collections
-
-
-# DOCTYPE
-print "Content-type: text/plain;charset=utf-8"
-print
-
-
-# SQL connection and cursor
-db = MySQLdb.connect("localhost", "bo14g23", "bo14g23MySqL", "bo14g23")
-db.set_character_set('utf8')
-cursor = db.cursor()
+import sql
+import validate_login
+from werkzeug.wrappers import Response
 
 
 # Args
@@ -32,26 +21,35 @@ fbid = args.getfirst("fbid", "")
 email = args.getfirst("email", "")
 
 # Fetching users
+def get_user(request, **values):
 
-def usr():
-	rowarray = []
-	cursor.execute("SELECT user_id, study_id, firstname, surname, AsText(latlon), car, starting_year FROM user")
-	rows = cursor.fetchall()
+    q = request.args.get('q')
+    if q == 'usr':
+        usr(request, **values)
+    elif q == 'allusrs':
+        allusrs(request, **values)
 
-	for row in rows:
-		c = collections.OrderedDict()
-		c['user_id'] = row[0]
-		c['study_id'] = row[1]
-		c['firstname'] = str(row[2])
-		c['surname'] = str(row[3])
-		c['latlon'] = str(row[4])
-		c['car'] = row[5]
-		c['starting_year'] = row[6]
-		rowarray.append(c)
+def usr(request, **values):
 
-	if rowarray:
-		j = json.dumps(rowarray, ensure_ascii=False)
-		return j 
+    cursor = sql.getCursor()
+    rowarray = []
+    cursor.execute("SELECT user_id, study_id, firstname, surname, AsText(latlon), car, starting_year FROM user")
+    rows = cursor.fetchall()
+
+    for row in rows:
+            c = collections.OrderedDict()
+            c['user_id'] = row[0]
+            c['study_id'] = row[1]
+            c['firstname'] = str(row[2])
+            c['surname'] = str(row[3])
+            c['latlon'] = str(row[4])
+            c['car'] = row[5]
+            c['starting_year'] = row[6]
+            rowarray.append(c)
+
+    if rowarray:
+            j = json.dumps(rowarray, ensure_ascii=False)
+            return j 
 
 
 if query == "usr":
@@ -60,7 +58,7 @@ if query == "usr":
 
 # Fetching all users with studies
 
-def allusrs():
+def allusrs(request, **values):
 	rowarray = []
 	cursor.execute("SELECT user.user_id, user.study_id, firstname, surname, AsText(latlon), car, starting_year, institution_name, campus_name, department_name, name_of_study, facebook_id FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN department ON study.department_id = department.department_id INNER JOIN campus ON study.campus_id = campus.campus_id INNER JOIN institution ON department.institution_id = institution.institution_id LEFT JOIN facebook_user ON user.user_id = facebook_user.user_id")
 	rows = cursor.fetchall()
