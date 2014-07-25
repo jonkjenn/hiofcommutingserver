@@ -1,13 +1,13 @@
+
 #!/usr/bin/python
 #-*- coding: UTF-8 -*-"
 """# enable debugging"""
 
 """
-  This module handles HTTP requests from the Hiof-commuting app and
-  returns json objects containing user credentials.
-  
-  Using -100 as error code for wrong/misspelled/missing email address.
-  Using -200 as error code for wrong/misspelled/missing password.
+This module handles HTTP requests from the Hiof-commuting app and
+returns json objects containing user credentials.
+Using -100 as error code for wrong/misspelled/missing email address.
+Using -200 as error code for wrong/misspelled/missing password.
 """
 
 import json
@@ -22,14 +22,10 @@ session_store = MySQLSessionStore()
 
 
 def email_exists(email):
-	"""else:
-		c['user_id'] = -100
-		ar.append(c)
-		print json.dumps(ar)"""
-        cursor.execute("select COUNT(1) from email_user where email=%s", (email))
-        if cursor.fetchone()[0]:
-            return True
-        return False
+    cursor.execute("select COUNT(1) from email_user where email=%s", (email))
+    if cursor.fetchone()[0]:
+        return True
+    return False
 
 def check_login(email, password):
     cursor.execute("select user_id,password from email_user where email=%s", (email))

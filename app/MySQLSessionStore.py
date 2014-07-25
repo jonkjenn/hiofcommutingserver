@@ -7,10 +7,11 @@ class MySQLSessionStore(SessionStore):
 
     def __init__(self, address='localhost', user='bo14g23', password='bo14g23MySql', database='bo14g23'):
         SessionStore.__init__(self, None)
-        self.cursor = sql.getCursor(address,user,password,database)
+        self.db = sql.getdb(address,user,password,database)
+        self.cursor = self.db.cursor()
 
     def get(self, sid, user_id = None):
-        if not self.is_valid_key(sid) or not session_valid(sid):
+        if not self.is_valid_key(sid) or not self.session_valid(sid):
             session = self.new()
             self.save(session.sid,user_id)
         else:

@@ -16,7 +16,10 @@ class App(object):
         self.url_map = Map([
             Rule('/email.py', endpoint='email_login_ep'),
             Rule('/department.py', endpoint='department_ep'),
-            Rule('/usr.py', endpoint='usr_ep')
+            Rule('/usr.py', endpoint='usr_ep'),
+            Rule('/usrid.py', endpoint='usrid_ep'),
+            Rule('/institution.py', endpoint='institution_ep'),
+            Rule('/hcserv.py', endpoint='hcserv_ep')
             ])
     
     def wsgi_app(self, environ, start_response):
@@ -40,15 +43,53 @@ class App(object):
 
     def email_login_ep(self, request, **values):
         from email_login import login
-        return login(request, **values)
+        return login(request)
     
     def department_ep(self, request, **values):
         from department import department
-        return department(request, **values)
+        return department(request)
 
     def usr_ep(self, request, **values):
-        from usr import get_user
-        return get_user(request, **values)
+        from usr import usr,allusrs,fbUserId,emailUser
+        q = request.args.get('q')
+        if q == 'usr':
+            return usr(request)
+        elif q == 'allusrs':
+            return allusrs(request)
+        elif q == 'fbUserId':
+            return fbUserId(request)
+        elif q == 'emailUser':
+            return emailUser(request)
+
+    def usrid_ep(sel, request, **values):
+        from usrid import usr
+        return usr(request,**values)
+
+    def institution_ep(self, request, **values):
+        from institution import institution
+        return institution(request,**values)
+
+    def study_ep(self,request,**values):
+        from study import study, getAllStudies
+        q = request.args.get('q')
+        if q == 'study':
+            return study(request)
+        elif q == 'getAllStudies':
+            return getAllStudies(request)
+
+    def hcserv_ep(self, request, **values):
+        import hcserv
+        q = request.args.get('q')
+
+        if q == 'conversation':
+            return hcserv.conversation(request)
+        elif q == 'send':
+            return hcserv.send(request)
+        elif q == 'inbox':
+            return hcserv.inbox(request)
+        elif q == 'newMessages':
+            return hcserv.newMessages(request)
+
 
 def create_app():
     return App()

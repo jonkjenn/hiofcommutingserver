@@ -17,7 +17,7 @@ cursor = sql.getCursor()
 
 # Fetching departments
 
-def department(request, **values):
+def department(request):
 
     if not validate_login.is_logged_in(request):
         return validate_login.failed_login()

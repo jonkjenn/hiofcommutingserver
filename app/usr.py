@@ -13,23 +13,9 @@ import sql
 import validate_login
 from werkzeug.wrappers import Response
 
-
-# Args
-args = cgi.FieldStorage()
-query = args.getfirst("q", "")
-fbid = args.getfirst("fbid", "")
-email = args.getfirst("email", "")
-
-# Fetching users
-def get_user(request, **values):
-
-    q = request.args.get('q')
-    if q == 'usr':
-        usr(request, **values)
-    elif q == 'allusrs':
-        allusrs(request, **values)
-
-def usr(request, **values):
+def usr(request):
+    if not validate_login.is_logged_in(request):
+        return validate_login.failed_login()
 
     cursor = sql.getCursor()
     rowarray = []
@@ -37,115 +23,114 @@ def usr(request, **values):
     rows = cursor.fetchall()
 
     for row in rows:
-            c = collections.OrderedDict()
-            c['user_id'] = row[0]
-            c['study_id'] = row[1]
-            c['firstname'] = str(row[2])
-            c['surname'] = str(row[3])
-            c['latlon'] = str(row[4])
-            c['car'] = row[5]
-            c['starting_year'] = row[6]
-            rowarray.append(c)
+        c = collections.OrderedDict()
+        c['user_id'] = row[0]
+        c['study_id'] = row[1]
+        c['firstname'] = str(row[2])
+        c['surname'] = str(row[3])
+        c['latlon'] = str(row[4])
+        c['car'] = row[5]
+        c['starting_year'] = row[6]
+        rowarray.append(c)
 
     if rowarray:
-            j = json.dumps(rowarray, ensure_ascii=False)
-            return j 
+        j = json.dumps(rowarray, ensure_ascii=False)
+        return Response(j,mimetype='text/plain')
+    return Response("")
 
-
-if query == "usr":
-	print usr()
-	
 
 # Fetching all users with studies
 
-def allusrs(request, **values):
-	rowarray = []
-	cursor.execute("SELECT user.user_id, user.study_id, firstname, surname, AsText(latlon), car, starting_year, institution_name, campus_name, department_name, name_of_study, facebook_id FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN department ON study.department_id = department.department_id INNER JOIN campus ON study.campus_id = campus.campus_id INNER JOIN institution ON department.institution_id = institution.institution_id LEFT JOIN facebook_user ON user.user_id = facebook_user.user_id")
-	rows = cursor.fetchall()
+def allusrs(request):
+    if not validate_login.is_logged_in(request):
+        return validate_login.failed_login()
 
-	for row in rows:
-		c = collections.OrderedDict()
-		c['user_id'] = row[0]
-		c['study_id'] = row[1]
-		c['firstname'] = str(row[2])
-		c['surname'] = str(row[3])
-		c['latlon'] = str(row[4])
-		c['car'] = row[5]
-		c['starting_year'] = row[6]
-		c['institution_name'] = str(row[7])
-		c['campus_name'] = str(row[8])
-		c['department_name'] = str(row[9])
-		c['name_of_study'] = str(row[10])
-		c['facebook_id'] = str(row[11])
-		rowarray.append(c)
+    rowarray = []
+    cursor.execute("SELECT user.user_id, user.study_id, firstname, surname, AsText(latlon), car, starting_year, institution_name, campus_name, department_name, name_of_study, facebook_id FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN department ON study.department_id = department.department_id INNER JOIN campus ON study.campus_id = campus.campus_id INNER JOIN institution ON department.institution_id = institution.institution_id LEFT JOIN facebook_user ON user.user_id = facebook_user.user_id")
+    rows = cursor.fetchall()
 
-	if rowarray:
-		j = json.dumps(rowarray, ensure_ascii=False)
-		return j 
+    for row in rows:
+        c = collections.OrderedDict()
+        c['user_id'] = row[0]
+        c['study_id'] = row[1]
+        c['firstname'] = str(row[2])
+        c['surname'] = str(row[3])
+        c['latlon'] = str(row[4])
+        c['car'] = row[5]
+        c['starting_year'] = row[6]
+        c['institution_name'] = str(row[7])
+        c['campus_name'] = str(row[8])
+        c['department_name'] = str(row[9])
+        c['name_of_study'] = str(row[10])
+        c['facebook_id'] = str(row[11])
+        rowarray.append(c)
 
+    if rowarray:
+        j = json.dumps(rowarray, ensure_ascii=False)
+        return Response(j, mimetype='text/plain')
 
-if query == "allusrs":
-	print allusrs()
+def fbUserId(request):
+    if not validate_login.is_logged_in(request):
+        return validate_login.failed_login()
 
+    fib = request.args.get('fib')
 
-def fbUserId():
-	rowarray = []
-	cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM facebook_user WHERE facebook_id=" + fbid + ")")
-	rows = cursor.fetchall()
+    rowarray = []
+    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM facebook_user WHERE facebook_id=%s",(fbid))
+    rows = cursor.fetchall()
 
-	for row in rows:
-		c = collections.OrderedDict()
-		c['user_id'] = row[0]
-		c['study_id'] = row[1]
-		c['firstname'] = str(row[2])
-		c['surname'] = str(row[3])
-		c['latlon'] = str(row[4])
-		c['institution_name'] = str(row[5])
-		c['campus_name'] = str(row[6])
-		c['department_name'] = str(row[7])
-		c['name_of_study'] = str(row[8])
-		c['starting_year'] = row[9]
-		c['car'] = row[10]
-		rowarray.append(c)
+    for row in rows:
+        c = collections.OrderedDict()
+        c['user_id'] = row[0]
+        c['study_id'] = row[1]
+        c['firstname'] = str(row[2])
+        c['surname'] = str(row[3])
+        c['latlon'] = str(row[4])
+        c['institution_name'] = str(row[5])
+        c['campus_name'] = str(row[6])
+        c['department_name'] = str(row[7])
+        c['name_of_study'] = str(row[8])
+        c['starting_year'] = row[9]
+        c['car'] = row[10]
+        rowarray.append(c)
 
-	if rowarray:
-		j = json.dumps(rowarray, ensure_ascii=False)
-		return j 	
-	else:
-		return '[{"user_id": -100, "study_id": null, "firstname": "null", "surname": "null", "latlon": "null", "institution_name": "null", "campus_name": "null", "department_name": "null", "name_of_study": "null", "starting_year": null, "car": null}]'
+    if rowarray:
+        j = json.dumps(rowarray, ensure_ascii=False)
+        return Response(j, mimetype='text/plain')
+    else:
+        return Response('[{"user_id": -100, "study_id": null, "firstname": "null", "surname": "null", "latlon": "null", "institution_name": "null", "campus_name": "null", "department_name": "null", "name_of_study": "null", "starting_year": null, "car": null}]',mimetype='text/plain')
 	
-if query == "fbUserId":
-	print fbUserId()
+def emailUser(request):
+    if not validate_login.is_logged_in(request):
+        return validate_login.failed_login()
 
+    email = request.args.get('email')
 
-def emailUser():
-	rowarray = []
-	cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM email_user WHERE email='" + email + "')")
-	rows = cursor.fetchall()
+    rowarray = []
+    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM email_user WHERE email=%s)",(email))
+    rows = cursor.fetchall()
 
-	for row in rows:
-		c = collections.OrderedDict()
-		c['user_id'] = row[0]
-		c['study_id'] = row[1]
-		c['firstname'] = str(row[2])
-		c['surname'] = str(row[3])
-		c['latlon'] = str(row[4])
-		c['institution_name'] = str(row[5])
-		c['campus_name'] = str(row[6])
-		c['department_name'] = str(row[7])
-		c['name_of_study'] = str(row[8])
-		c['starting_year'] = row[9]
-		c['car'] = row[10]
-		rowarray.append(c)
+    for row in rows:
+        c = collections.OrderedDict()
+        c['user_id'] = row[0]
+        c['study_id'] = row[1]
+        c['firstname'] = str(row[2])
+        c['surname'] = str(row[3])
+        c['latlon'] = str(row[4])
+        c['institution_name'] = str(row[5])
+        c['campus_name'] = str(row[6])
+        c['department_name'] = str(row[7])
+        c['name_of_study'] = str(row[8])
+        c['starting_year'] = row[9]
+        c['car'] = row[10]
+        rowarray.append(c)
 
-	if rowarray:
-		j = json.dumps(rowarray, ensure_ascii=False)
-		return j 	
-	
-if query == "emailUser":
-	print emailUser()
+    if rowarray:
+        j = json.dumps(rowarray, ensure_ascii=False)
+        return Response(j, mimetype='text/plain')
 
-	
+    return Response("", mimetype='text/plain')
+
 """
 Example:
 http://frigg.hiof.no/bo14-g23/py/reg.py?q=dep&institution_id=1

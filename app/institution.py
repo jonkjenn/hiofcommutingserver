@@ -7,46 +7,35 @@ This module handles HTTP requests from the Hiof-commuting app and
 returns json objects containing user credentials.
 """
 
-import cgi
-"""import cgitb; cgitb.enable()"""
+import sql
 import MySQLdb
 import json
 import collections
-
-
-# DOCTYPE
-print "Content-type: text/plain;charset=utf-8"
-print
-
-
-# SQL connection and cursor
-db = MySQLdb.connect("localhost", "bo14g23", "bo14g23MySqL", "bo14g23")
-db.set_character_set('utf8')
-cursor = db.cursor()
-
-
-# Args
-args = cgi.FieldStorage()
-
+import validate_login
+from werkzeug.wrappers import Response
 
 # Fetching users
 
-def institution():
-	rowarray = []
-	cursor.execute("select * from institution")
-	rows = cursor.fetchall()
+def institution(request):
+    if not validate_login.is_logged_in(request):
+        return validate_login.failed_login()
 
-	for row in rows:
-		c = collections.OrderedDict()
-		c['institution_id'] = row[0]
-		c['institution_name'] = row[1]
-		rowarray.append(c)
+    cursor = sql.getCursor()
 
-	if rowarray:
-		j = json.dumps(rowarray, ensure_ascii=False)
-		return j 
+    rowarray = []
+    cursor.execute("select * from institution")
+    rows = cursor.fetchall()
 
-print institution()
+    for row in rows:
+        c = collections.OrderedDict()
+        c['institution_id'] = row[0]
+        c['institution_name'] = row[1]
+        rowarray.append(c)
+
+    if rowarray:
+        j = json.dumps(rowarray, ensure_ascii=False)
+        return Response(j, mimetype='text/plain')
+    return Response("", mimetype='text/plain')
 
 """
 Example:
