@@ -20,7 +20,8 @@ class MySQLSessionStore(SessionStore):
 
     def session_valid(self,sid):
         self.cursor.execute("select user_id, created from session where session_id = %s and datediff(now(),created)<5 ",(sid))
-        if self.cursor.fetchone()[0]:
+        rows = self.cursor.fetchone()
+        if rows != None:
             return True
         return False
 

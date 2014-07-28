@@ -19,7 +19,9 @@ class App(object):
             Rule('/usr.py', endpoint='usr_ep'),
             Rule('/usrid.py', endpoint='usrid_ep'),
             Rule('/institution.py', endpoint='institution_ep'),
-            Rule('/hcserv.py', endpoint='hcserv_ep')
+            Rule('/hcserv.py', endpoint='hcserv_ep'),
+            Rule('/regusr.py', endpoint='regusr_ep'),
+            Rule('/study.py', endpoint='study_ep')
             ])
     
     def wsgi_app(self, environ, start_response):
@@ -90,6 +92,10 @@ class App(object):
         elif q == 'newMessages':
             return hcserv.newMessages(request)
 
+    def regusr_ep(self, request, **values):
+        from regusr import insertEmailUser
+        insertEmailUser(request)
+        return Response('')
 
 def create_app():
     return App()

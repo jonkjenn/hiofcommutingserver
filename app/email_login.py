@@ -37,6 +37,9 @@ def check_login(email, password):
 def login(request, **values):
 
     sid = request.cookies.get('hccook')
+    print "cookies"
+    print request.cookies
+
     if sid:
         print "Found cookie"
         if session_store.session_valid(sid):
@@ -45,9 +48,9 @@ def login(request, **values):
             return login_success(user_id,sid = sid, send_cookie = False)
 
 
-    if 'email' in request.args and 'password' in request.args:
+    if 'email' in request.args and 'pass' in request.args:
             email = request.args.get('email')
-            password = request.args.get('password').encode('utf-8')
+            password = request.args.get('pass').encode('utf-8')
 
             if email_exists(email):
                 user_id = check_login(email, password)
@@ -57,6 +60,9 @@ def login(request, **values):
     return login_fail()
 
 def login_fail():
+    c = collections.OrderedDict()
+    ar = []
+
     c['user_id'] = -200
     ar.append(c)
     return Response(json.dumps(ar), mimetype='text/plain')
@@ -70,6 +76,7 @@ def login_success(user_id,sid=None,send_cookie=False):
     response = Response(json.dumps(ar), mimetype='text/plain')
     if send_cookie:
         import datetime
-        response.set_cookie('hccook', value=sid, max_age=3600*24*4, expires=datetime.datetime.now() + datetime.timedelta(days=4))
+        print "Setting cookie"
+        response.set_cookie('hccook', value=sid, max_age=3600*24*4, expires=datetime.datetime.utcnow() + datetime.timedelta(days=4))
     return response
 

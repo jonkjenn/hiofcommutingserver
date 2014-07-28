@@ -45,6 +45,8 @@ def allusrs(request):
     if not validate_login.is_logged_in(request):
         return validate_login.failed_login()
 
+    cursor = sql.getCursor()
+
     rowarray = []
     cursor.execute("SELECT user.user_id, user.study_id, firstname, surname, AsText(latlon), car, starting_year, institution_name, campus_name, department_name, name_of_study, facebook_id FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN department ON study.department_id = department.department_id INNER JOIN campus ON study.campus_id = campus.campus_id INNER JOIN institution ON department.institution_id = institution.institution_id LEFT JOIN facebook_user ON user.user_id = facebook_user.user_id")
     rows = cursor.fetchall()
@@ -73,6 +75,7 @@ def fbUserId(request):
     if not validate_login.is_logged_in(request):
         return validate_login.failed_login()
 
+    cursor = sql.getCursor()
     fib = request.args.get('fib')
 
     rowarray = []
@@ -104,10 +107,13 @@ def emailUser(request):
     if not validate_login.is_logged_in(request):
         return validate_login.failed_login()
 
+    cursor = sql.getCursor()
+
     email = request.args.get('email')
 
     rowarray = []
-    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM email_user WHERE email=%s)",(email))
+    #cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM email_user WHERE email=%s)",(email))
+    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM session WHERE user_id=%s)",(request.user_id))
     rows = cursor.fetchall()
 
     for row in rows:

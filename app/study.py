@@ -20,6 +20,8 @@ def study(request):
     if not validate_login.is_logged_in(request):
         return validate_login.failed_login()
 
+    cursor = sql.getCursor()
+
     rowarray = []
     cursor.execute("SELECT study_id, institution_name, campus_name, department_name, name_of_study FROM study INNER JOIN department ON study.department_id = department.department_id INNER JOIN campus ON study.campus_id = campus.campus_id INNER JOIN institution ON department.institution_id = institution.institution_id")
     rows = cursor.fetchall()
@@ -41,6 +43,8 @@ def study(request):
 def getAllStudies(request):
     if not validate_login.is_logged_in(request):
         return validate_login.failed_login()
+
+    cursor = sql.getCursor()
 
     rowarray = []
     cursor.execute("SELECT * FROM study")
