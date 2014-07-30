@@ -37,13 +37,9 @@ def check_login(email, password):
 def login(request, **values):
 
     sid = request.cookies.get('hccook')
-    print "cookies"
-    print request.cookies
 
     if sid:
-        print "Found cookie"
         if session_store.session_valid(sid):
-            print "Cookie login"
             user_id = session_store.get_userid(sid)
             return login_success(user_id,sid = sid, send_cookie = False)
 
@@ -55,7 +51,7 @@ def login(request, **values):
             if email_exists(email):
                 user_id = check_login(email, password)
                 if user_id:
-                    request.session = session_store.get("",user_id)
+                    request.session = session_store.session_new("",user_id)
                     return login_success(user_id, sid = request.session.sid, send_cookie = True)
     return login_fail()
 

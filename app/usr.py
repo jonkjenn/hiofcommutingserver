@@ -12,6 +12,7 @@ import collections
 import sql
 import validate_login
 from werkzeug.wrappers import Response
+import facebook
 
 def usr(request):
     if not validate_login.is_logged_in(request):
@@ -36,7 +37,7 @@ def usr(request):
     if rowarray:
         j = json.dumps(rowarray, ensure_ascii=False)
         return Response(j,mimetype='text/plain')
-    return Response("")
+    return Response("{}")
 
 
 # Fetching all users with studies
@@ -72,14 +73,24 @@ def allusrs(request):
         return Response(j, mimetype='text/plain')
 
 def fbUserId(request):
-    if not validate_login.is_logged_in(request):
-        return validate_login.failed_login()
+    import urllib2
+    #if not validate_login.is_logged_in(request):
+    #    return validate_login.failed_login()
 
     cursor = sql.getCursor()
-    fib = request.args.get('fib')
+    fid = request.args.get('fbid')
+    token = request.args.get('token')
+
+    print request.args
+
+    handler = urllib2.urlopen('https://graph.facebook.com/me?fields=id&access_token=' + token)
+
+    print "graph:"
+    print handler.getcode()
+    print handler.read()
 
     rowarray = []
-    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM facebook_user WHERE facebook_id=%s",(fbid))
+    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM facebook_user WHERE facebook_id=%s)",(fid))
     rows = cursor.fetchall()
 
     for row in rows:
@@ -113,7 +124,7 @@ def emailUser(request):
 
     rowarray = []
     #cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM email_user WHERE email=%s)",(email))
-    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM session WHERE user_id=%s)",(request.user_id))
+    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM session WHERE user_id=%s LIMIT 1)",(request.user_id))
     rows = cursor.fetchall()
 
     for row in rows:
@@ -135,7 +146,7 @@ def emailUser(request):
         j = json.dumps(rowarray, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
 
-    return Response("", mimetype='text/plain')
+    return Response("{}", mimetype='text/plain')
 
 """
 Example:

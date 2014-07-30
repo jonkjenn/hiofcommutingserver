@@ -17,8 +17,6 @@ from werkzeug.wrappers import Response
 # Fetching users
 
 def institution(request):
-    if not validate_login.is_logged_in(request):
-        return validate_login.failed_login()
 
     cursor = sql.getCursor()
 
@@ -35,7 +33,7 @@ def institution(request):
     if rowarray:
         j = json.dumps(rowarray, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
-    return Response("", mimetype='text/plain')
+    return Response("{}", mimetype='text/plain')
 
 """
 Example:

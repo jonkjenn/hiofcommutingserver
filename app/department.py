@@ -19,9 +19,6 @@ cursor = sql.getCursor()
 
 def department(request):
 
-    if not validate_login.is_logged_in(request):
-        return validate_login.failed_login()
-
     rowarray = []
     cursor.execute("select * from department")
     rows = cursor.fetchall()
@@ -35,7 +32,7 @@ def department(request):
 
     if rowarray:
         return Response(json.dumps(rowarray, ensure_ascii=False), mimetype='text/plain')
-    return Response("",mimetype='text/plain')
+    return Response("{}",mimetype='text/plain')
 
 """
 Example:

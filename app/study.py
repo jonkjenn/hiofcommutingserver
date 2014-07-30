@@ -17,8 +17,8 @@ from werkzeug.wrappers import Response
 # Fetching studies
 
 def study(request):
-    if not validate_login.is_logged_in(request):
-        return validate_login.failed_login()
+    #if not validate_login.is_logged_in(request):
+    #    return validate_login.failed_login()
 
     cursor = sql.getCursor()
 
@@ -38,11 +38,11 @@ def study(request):
     if rowarray:
         j = json.dumps(rowarray, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
-    return Response("", mimetype='text/plain')
+    return Response("{}", mimetype='text/plain')
 		
 def getAllStudies(request):
-    if not validate_login.is_logged_in(request):
-        return validate_login.failed_login()
+    #if not validate_login.is_logged_in(request):
+    #    return validate_login.failed_login()
 
     cursor = sql.getCursor()
 
@@ -61,7 +61,7 @@ def getAllStudies(request):
     if rowarray:
         j = json.dumps(rowarray, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
-    return Response("", mimetype='text/plain')
+    return Response("{}", mimetype='text/plain')
 
 """
 Example:

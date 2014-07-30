@@ -10,12 +10,17 @@ class MySQLSessionStore(SessionStore):
         self.db = sql.getdb(address,user,password,database)
         self.cursor = self.db.cursor()
 
-    def get(self, sid, user_id = None):
-        if not self.is_valid_key(sid) or not self.session_valid(sid):
-            session = self.new()
-            self.save(session.sid,user_id)
-        else:
-            session =  self.session_class({},sid,False)
+    #def get(self, sid, user_id = None):
+     #   if not self.is_valid_key(sid) or not self.session_valid(sid):
+      #      session = self.new()
+       #     self.save(session.sid,user_id)
+        #else:
+        #    session =  self.session_class({},sid,False)
+        #return session
+
+    def session_new(self, sid, user_id):
+        session = self.new()
+        self.save(session.sid,user_id)
         return session
 
     def session_valid(self,sid):
