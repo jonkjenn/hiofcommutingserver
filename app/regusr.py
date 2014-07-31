@@ -58,11 +58,12 @@ def insertEmailUser(request):
     sqlusr = "insert into user (study_id, firstname, surname, latlon, car, starting_year) values( %s, %s, %s, point(%s, %s), %s, %s)"
 
     #sqlemail = "insert into email_user values((select user_id from user where firstname=\"" + fname + "\" and surname=\""  + sname +  "\"), \"" + email + "\", \"" + pw + "\")"
-    sqlemail = "insert into email_user values((select user_id from user where firstname=%s and surname=%s), %s, %s)"
+    sqlemail = "insert into email_user values(%s, %s, %s)"
 
     try:
         cursor.execute(sqlusr, (sid,fname,sname,lat,lon,car,starting_year))
-        cursor.execute(sqlemail, (fname, sname,email, hpw))
+        user_id = cursor.lastrowid
+        cursor.execute(sqlemail, (user_id,email, hpw))
         db.commit()
     except MySQLdb.Error, e:
         print e

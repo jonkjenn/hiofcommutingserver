@@ -13,6 +13,7 @@ def is_logged_in(request):
     return False
 
 def failed_login():
+    print "Login failed"
     c = collections.OrderedDict()
     ar = []
 

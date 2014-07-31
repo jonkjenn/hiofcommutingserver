@@ -21,7 +21,8 @@ class App(object):
             Rule('/institution.py', endpoint='institution_ep'),
             Rule('/hcserv.py', endpoint='hcserv_ep'),
             Rule('/regusr.py', endpoint='regusr_ep'),
-            Rule('/study.py', endpoint='study_ep')
+            Rule('/study.py', endpoint='study_ep'),
+            Rule('/regfbusr.py', endpoint='regfbusr_ep')
             ])
     
     def wsgi_app(self, environ, start_response):
@@ -58,7 +59,7 @@ class App(object):
             return usr(request)
         elif q == 'allusrs':
             return allusrs(request)
-        elif q == 'fbUserId':
+        elif q == 'fbusrid':
             return fbUserId(request)
         elif q == 'emailUser':
             return emailUser(request)
@@ -96,6 +97,10 @@ class App(object):
         from regusr import insertEmailUser
         insertEmailUser(request)
         return Response('')
+
+    def regfbusr_ep(self, request, **values):
+        from regfbusr import insertFacebookUser
+        return insertFacebookUser(request)
 
 def create_app():
     return App()

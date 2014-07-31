@@ -34,6 +34,14 @@ class MySQLSessionStore(SessionStore):
         self.cursor.execute("select user_id, created from session where session_id = %s and datediff(now(),created)<5 ",(sid))
         return self.cursor.fetchone()[0]
 
+    def get_userid_from_face(self, face):
+        self.cursor.execute("select user_id from facebook_user where facebook_id = %s", (face))
+        row = self.cursor.fetchone()
+        if row:
+            return row[0]
+        else:
+            return None
+
     def save(self, sid, user_id):
         self.cursor.execute("insert into session (session_id, user_id, created) values(%s,%s,now())",(sid, user_id))
         self.db.commit()

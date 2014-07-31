@@ -7,56 +7,88 @@
 	inserts user credentials to the db.
 """
 
-import cgi
-"""import cgitb; cgitb.enable()"""
 import MySQLdb
+import sql
 import json
 import collections
+import validate_login
+from werkzeug.wrappers import Response
+import face
 
-
-# DOCTYPE
-print "Content-type: text/plain;charset=utf-8"
-print
-
-
-# SQL connection and cursor
-db = MySQLdb.connect("localhost", "bo14g23", "bo14g23MySqL", "bo14g23")
-db.set_character_set('utf8')
-cursor = db.cursor()
-
-
-# Args
-args = cgi.FieldStorage()
-query = args.getfirst("q", "")
-
-""" User table """
-sid = args.getfirst("sid", "")
-fname = args.getfirst("fname", "")
-sname = args.getfirst("sname", "")
-lon = args.getfirst("lon", "")
-lat = args.getfirst("lat", "")
-starting_year = args.getfirst("starting_year", "")
-car = args.getfirst("car", "")
+# form
+""" User table 
+sid = form.getfirst("sid", "")
+fname = form.getfirst("fname", "")
+sname = form.getfirst("sname", "")
+lon = form.getfirst("lon", "")
+lat = form.getfirst("lat", "")
+starting_year = form.getfirst("starting_year", "")
+car = form.getfirst("car", "")
+"""
 
 """ facebook table """
-fbid = args.getfirst("fbid", "")
+#fbid = form.getfirst("fbid", "")
 
 
-def insertFacebookUser():
-	sqlusr = "insert into user (study_id, firstname, surname, latlon,starting_year, car) values(" + sid + "," + "\"" + fname + "\"," + "\"" + sname + "\",point(" + lat + "," + lon + ")," + starting_year + "," + car + ")"
+def insertFacebookUser(request):
+    from MySQLSessionStore import MySQLSessionStore
+    session_store = MySQLSessionStore()
 
-	sqlfb = "insert into facebook_user values((select user_id from user where firstname=\"" + fname + "\" and surname=\""  + sname +  "\"), \"" + fbid + "\")"
-	
-	try:
-		cursor.execute(sqlusr)
-		cursor.execute(sqlfb)
-		db.commit()
-	except:
-		db.rollback()	
+    token = request.form.get('token')
 
-		
-if query == "facebookUser":	
-	insertFacebookUser()
-	
+    print request.form
 
-	
+    fid = face.valid_face(token)
+    if not fid:
+        return
+
+    sid = request.form.get('sid')
+    fname = request.form.get('fname')
+    sname = request.form.get('sname')
+    lon = request.form.get('lon')
+    lat = request.form.get('lat')
+    starting_year = request.form.get('starting_year')
+    car = request.form.get('car')
+    if car == 'true':
+        car = True
+    else:
+        car = False
+
+    #sqlusr = "insert into user (study_id, firstname, surname, latlon,starting_year, car) values(" + sid + "," + "\"" + fname + "\"," + "\"" + sname + "\",point(" + lat + "," + lon + ")," + starting_year + "," + car + ")"
+    sqlusr = "insert into user (study_id, firstname, surname, latlon,starting_year, car) values(%s,%s,%s, point(%s,%s), %s, %s)"
+
+    #sqlfb = "insert into facebook_user values((select user_id from user where firstname=\"" + fname + "\" and surname=\""  + sname +  "\"), \"" + fbid + "\")"
+    sqlfb = "insert into facebook_user values(%s, %s)"
+
+    db = sql.getdb()
+
+    success = False
+
+    try:
+        cursor = db.cursor()
+        cursor.execute(sqlusr, (sid, fname, sname, lat, lon, starting_year,car ))
+        user_id = cursor.lastrowid
+        print user_id
+        print fid
+        cursor.execute(sqlfb, (user_id, fid))
+        db.commit()
+        success = True
+    except MySQLdb.Error, e:
+        print e
+        db.rollback()       
+        success = False
+    except Exception as ex:
+        print ex
+        db.rollback()       
+        success = False
+
+    if success:
+        user_id = session_store.get_userid_from_face(fid)
+
+        import datetime
+        request.session = session_store.session_new("",user_id)
+        response = Response("",mimetype='text/plain')
+        response.set_cookie('hccook', value=request.session.sid, max_age=3600*24*4, expires=datetime.datetime.utcnow() + datetime.timedelta(days=4))
+        return response
+    else:
+        return Response("")

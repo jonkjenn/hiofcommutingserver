@@ -73,21 +73,23 @@ def allusrs(request):
         return Response(j, mimetype='text/plain')
 
 def fbUserId(request):
-    import urllib2
-    #if not validate_login.is_logged_in(request):
-    #    return validate_login.failed_login()
+    import face
+    from MySQLSessionStore import MySQLSessionStore
+
+    session_store = MySQLSessionStore()
 
     cursor = sql.getCursor()
-    fid = request.args.get('fbid')
     token = request.args.get('token')
 
-    print request.args
+    fid = face.valid_face(token)
+    if fid == None:
+        return Response('[{"user_id":-200}]', mimetype='text/plain')
 
-    handler = urllib2.urlopen('https://graph.facebook.com/me?fields=id&access_token=' + token)
 
-    print "graph:"
-    print handler.getcode()
-    print handler.read()
+    user_id = session_store.get_userid_from_face(fid)
+    if not user_id:
+        response = Response('[{"user_id": -100, "study_id": null, "firstname": "null", "surname": "null", "latlon": "null", "institution_name": "null", "campus_name": "null", "department_name": "null", "name_of_study": "null", "starting_year": null, "car": null}]',mimetype='text/plain')
+        return response
 
     rowarray = []
     cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM facebook_user WHERE facebook_id=%s)",(fid))
@@ -108,12 +110,18 @@ def fbUserId(request):
         c['car'] = row[10]
         rowarray.append(c)
 
-    if rowarray:
-        j = json.dumps(rowarray, ensure_ascii=False)
-        return Response(j, mimetype='text/plain')
-    else:
-        return Response('[{"user_id": -100, "study_id": null, "firstname": "null", "surname": "null", "latlon": "null", "institution_name": "null", "campus_name": "null", "department_name": "null", "name_of_study": "null", "starting_year": null, "car": null}]',mimetype='text/plain')
-	
+    j = json.dumps(rowarray, ensure_ascii=False)
+    response = Response(j, mimetype='text/plain')
+
+    sid = request.cookies.get('hccook')
+
+    if not (sid and  session_store.session_valid(sid)):
+        import datetime
+        request.session = session_store.session_new("",user_id)
+        response.set_cookie('hccook', value=request.session.sid, max_age=3600*24*4, expires=datetime.datetime.utcnow() + datetime.timedelta(days=4))
+
+    return response
+
 def emailUser(request):
     if not validate_login.is_logged_in(request):
         return validate_login.failed_login()

@@ -72,7 +72,6 @@ def login_success(user_id,sid=None,send_cookie=False):
     response = Response(json.dumps(ar), mimetype='text/plain')
     if send_cookie:
         import datetime
-        print "Setting cookie"
         response.set_cookie('hccook', value=sid, max_age=3600*24*4, expires=datetime.datetime.utcnow() + datetime.timedelta(days=4))
     return response
 
