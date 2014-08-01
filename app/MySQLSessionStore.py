@@ -20,6 +20,7 @@ class MySQLSessionStore(SessionStore):
 
     def session_new(self, sid, user_id):
         session = self.new()
+        self.delete_old_sessions(user_id)
         self.save(session.sid,user_id)
         return session
 
@@ -45,3 +46,6 @@ class MySQLSessionStore(SessionStore):
     def save(self, sid, user_id):
         self.cursor.execute("insert into session (session_id, user_id, created) values(%s,%s,now())",(sid, user_id))
         self.db.commit()
+
+    def delete_old_sessions(self, user_id):
+        self.cursor.execute("delete from session where user_id = %s", (user_id))

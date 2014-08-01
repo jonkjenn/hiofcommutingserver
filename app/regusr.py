@@ -19,36 +19,36 @@ import sql
 
 def insertEmailUser(request):
     """ User table 
-    sid = args.getfirst("sid", "")
-    fname = args.getfirst("fname", "")
-    sname = args.getfirst("sname", "")
-    lon = args.getfirst("lon", "")
-    lat = args.getfirst("lat", "")
-    car = args.getfirst("car", "")
+    sid = form.getfirst("sid", "")
+    fname = form.getfirst("fname", "")
+    sname = form.getfirst("sname", "")
+    lon = form.getfirst("lon", "")
+    lat = form.getfirst("lat", "")
+    car = form.getfirst("car", "")
     if car == 'true':
     car = True
     else:
     car = False
-    starting_year = args.getfirst("starting_year", "")
+    starting_year = form.getfirst("starting_year", "")
 
     #Email table 
-    email = args.getfirst("email", "")
-    pw = args.getfirst("pw", "")"""
+    email = form.getfirst("email", "")
+    pw = form.getfirst("pw", "")"""
 
-    sid = request.args.get('sid')
-    fname = request.args.get('fname')
-    sname = request.args.get('sname')
-    lon = request.args.get('lon')
-    lat = request.args.get('lat')
-    car = request.args.get('car')
+    sid = request.form.get('sid')
+    fname = request.form.get('fname')
+    sname = request.form.get('sname')
+    lon = request.form.get('lon')
+    lat = request.form.get('lat')
+    car = request.form.get('car')
     if car == 'true':
         car = True
     else:
         car = False
 
-    starting_year = request.args.get('starting_year')
-    email = request.args.get('email')
-    pw = request.args.get('pw').encode('utf-8')
+    starting_year = request.form.get('starting_year')
+    email = request.form.get('email')
+    pw = request.form.get('pw').encode('utf-8')
 
     hpw = bcrypt.hashpw(pw,bcrypt.gensalt())
 

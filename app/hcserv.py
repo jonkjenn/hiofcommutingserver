@@ -32,6 +32,8 @@ def conversation(request):
 
     cursor = sql.getCursor()
 
+    user_id_receiver = request.args.get('user_id_receiver')
+
     rowarrayc = []
     cursor.execute("select * from message where user_id_sender IN(%s, %s) and user_id_receiver IN(%s, %s) order by sent ASC", (request.user_id, user_id_receiver, request.user_id, user_id_receiver))
     
@@ -46,8 +48,13 @@ def conversation(request):
         c['read'] = str(row[4])
         rowarrayc.append(c)
 
+    print "Row array"
+
+    print rowarrayc
+
     if rowarrayc:
-        return Response(rowarrayc, mimetype='text/plain')
+        j = json.dumps(rowarrayc, ensure_ascii=False)
+        return Response(j, mimetype='text/plain')
     return Response("", mimetype='text/plain')
 
 
@@ -94,7 +101,16 @@ http://frigg.hiof.no/bo14-g23/hcserv.py?q=inbox&user_id_receiver=4
 def send(request):
     if not validate_login.is_logged_in(request):
         return validate_login.failed_login()
-    cursor = sql.getCursor()
+
+    db = sql.getdb()
+    cursor = db.cursor()
+
+    print "Sending"
+
+    user_id_receiver = request.form.get('user_id_receiver')
+    message = request.form.get('message')
+
+    print request.form
 
     #cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(" + user_id_sender + "," + user_id_receiver + "," + "\"" + message + "\"" + ", current_timestamp)" )
     cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(%s,%s,%s,current_timestamp)",(request.user_id, user_id_receiver, message))

@@ -22,7 +22,8 @@ class App(object):
             Rule('/hcserv.py', endpoint='hcserv_ep'),
             Rule('/regusr.py', endpoint='regusr_ep'),
             Rule('/study.py', endpoint='study_ep'),
-            Rule('/regfbusr.py', endpoint='regfbusr_ep')
+            Rule('/regfbusr.py', endpoint='regfbusr_ep'),
+            Rule('/delusr.py', endpoint='delusr_ep')
             ])
     
     def wsgi_app(self, environ, start_response):
@@ -82,7 +83,7 @@ class App(object):
 
     def hcserv_ep(self, request, **values):
         import hcserv
-        q = request.args.get('q')
+        q = request.values.get('q')
 
         if q == 'conversation':
             return hcserv.conversation(request)
@@ -101,6 +102,11 @@ class App(object):
     def regfbusr_ep(self, request, **values):
         from regfbusr import insertFacebookUser
         return insertFacebookUser(request)
+
+    def delusr_ep(self, request, **values):
+        from deleteuser import deleteuser
+        deleteuser(request)
+        return Response('')
 
 def create_app():
     return App()

@@ -6,6 +6,8 @@ import json
 def is_logged_in(request):
     session_store = MySQLSessionStore()
     sid = request.cookies.get('hccook')
+    print "sid"
+    print sid
     if sid and session_store.session_valid(sid):
         request.session = session_store.get(sid)
         request.user_id = session_store.get_userid(sid)
