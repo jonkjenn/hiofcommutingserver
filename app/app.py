@@ -23,7 +23,9 @@ class App(object):
             Rule('/regusr.py', endpoint='regusr_ep'),
             Rule('/study.py', endpoint='study_ep'),
             Rule('/regfbusr.py', endpoint='regfbusr_ep'),
-            Rule('/delusr.py', endpoint='delusr_ep')
+            Rule('/delusr.py', endpoint='delusr_ep'),
+            Rule('/reggcm.py', endpoint='reggcm_ep'),
+            Rule('/gcm_test', endpoint='gcm_test_ep')
             ])
     
     def wsgi_app(self, environ, start_response):
@@ -84,6 +86,8 @@ class App(object):
     def hcserv_ep(self, request, **values):
         import hcserv
         q = request.values.get('q')
+        print "q"
+        print q
 
         if q == 'conversation':
             return hcserv.conversation(request)
@@ -93,6 +97,8 @@ class App(object):
             return hcserv.inbox(request)
         elif q == 'newMessages':
             return hcserv.newMessages(request)
+        elif q == 'read':
+            return hcserv.read(request)
 
     def regusr_ep(self, request, **values):
         from regusr import insertEmailUser
@@ -106,6 +112,16 @@ class App(object):
     def delusr_ep(self, request, **values):
         from deleteuser import deleteuser
         deleteuser(request)
+        return Response('')
+
+    def reggcm_ep(self, request, **values):
+        from reggcm import reggcm
+        reggcm(request)
+        return Response('')
+
+    def gcm_test_ep(self, request, **values):
+        from hcserv import test
+        test()
         return Response('')
 
 def create_app():

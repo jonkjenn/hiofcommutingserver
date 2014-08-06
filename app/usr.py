@@ -88,11 +88,11 @@ def fbUserId(request):
 
     user_id = session_store.get_userid_from_face(fid)
     if not user_id:
-        response = Response('[{"user_id": -100, "study_id": null, "firstname": "null", "surname": "null", "latlon": "null", "institution_name": "null", "campus_name": "null", "department_name": "null", "name_of_study": "null", "starting_year": null, "car": null}]',mimetype='text/plain')
+        response = Response('[{"user_id": -100, "study_id": null, "firstname": "null", "surname": "null", "latlon": "null", "institution_name": "null", "campus_name": "null", "department_name": "null", "name_of_study": "null", "starting_year": null, "car": null, "gcm_id":null}]',mimetype='text/plain')
         return response
 
     rowarray = []
-    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM facebook_user WHERE facebook_id=%s)",(fid))
+    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car, gcm_id FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM facebook_user WHERE facebook_id=%s)",(fid))
     rows = cursor.fetchall()
 
     for row in rows:
@@ -108,6 +108,7 @@ def fbUserId(request):
         c['name_of_study'] = str(row[8])
         c['starting_year'] = row[9]
         c['car'] = row[10]
+        c['gcm_id'] = row[11]
         rowarray.append(c)
 
     j = json.dumps(rowarray, ensure_ascii=False)
@@ -132,7 +133,7 @@ def emailUser(request):
 
     rowarray = []
     #cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM email_user WHERE email=%s)",(email))
-    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM session WHERE user_id=%s LIMIT 1)",(request.user_id))
+    cursor.execute("SELECT user_id, user.study_id, firstname, surname, AsText(latlon) as latlon, institution.institution_name, campus.campus_name, department.department_name, name_of_study, starting_year, car, gcm_id FROM user INNER JOIN study ON user.study_id = study.study_id INNER JOIN campus ON study.campus_id = campus.campus_id ""INNER JOIN department ON study.department_id = department.department_id INNER JOIN institution ON department.institution_id = institution.institution_id WHERE user_id = (SELECT user_id FROM session WHERE user_id=%s LIMIT 1)",(request.user_id))
     rows = cursor.fetchall()
 
     for row in rows:
@@ -148,6 +149,7 @@ def emailUser(request):
         c['name_of_study'] = str(row[8])
         c['starting_year'] = row[9]
         c['car'] = row[10]
+        c['gcm_id'] = row[11]
         rowarray.append(c)
 
     if rowarray:

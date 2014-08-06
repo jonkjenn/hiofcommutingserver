@@ -48,10 +48,6 @@ def conversation(request):
         c['read'] = str(row[4])
         rowarrayc.append(c)
 
-    print "Row array"
-
-    print rowarrayc
-
     if rowarrayc:
         j = json.dumps(rowarrayc, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
@@ -105,20 +101,64 @@ def send(request):
     db = sql.getdb()
     cursor = db.cursor()
 
-    print "Sending"
-
     user_id_receiver = request.form.get('user_id_receiver')
     message = request.form.get('message')
 
-    print request.form
-
     #cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(" + user_id_sender + "," + user_id_receiver + "," + "\"" + message + "\"" + ", current_timestamp)" )
     cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(%s,%s,%s,current_timestamp)",(request.user_id, user_id_receiver, message))
-    cursor.close()
     db.commit()
+
+    #cursor.execute("select gcm_id from user where user_id = %s", (user_id_receiver))
+    cursor.execute("select firstname, surname, gcm_id from user where user_id = %s", (request.user_id_receiver))
+    row = cursor.fetchone()
+    receiver = row[2]
+    firstname = row[0]
+    surname = row[1]
+
     db.close()
 
+    send_gcm(name, receiver, message, request.user_id)
+    #send_gcm(firstname, surname, receiver, message, 42)
+
     return Response(message, mimetype='text/plain')
+
+def test():
+    db = sql.getdb()
+    cursor = db.cursor()
+
+    user_id_receiver = 42
+    message = "test message"
+
+    #cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(" + user_id_sender + "," + user_id_receiver + "," + "\"" + message + "\"" + ", current_timestamp)" )
+    cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(%s,%s,%s,current_timestamp)",(42, user_id_receiver, message))
+    db.commit()
+
+    import os
+    send_gcm("test", "test", os.environ.get("TEST_GCMID"),"test message",42)
+
+def send_gcm(firstname, surname, receiver, message, sender_id):
+    import gcm
+    from gcm import GCM
+    g = GCM("AIzaSyCe4qd78W_T_cgNxB_WmfIGcTrF-nkCpmw")
+    data = {'message':message, 'sender_firstname':firstname,'sender_surname':surname, 'sender_id':str(sender_id)}
+
+    try:
+        print "Sending gcm"
+        print receiver
+        g.plaintext_request(registration_id=receiver,data=data)
+    except gcm.gcm.GCMInvalidRegistrationException:
+        print "Invalid reg id"
+        db = sql.getdb()
+        cursor = db.cursor()
+        cursor.execute("update user set gcm_id = null where gcm_id = %s", (receiver))
+        db.commit()
+        db.close()
+
+
+def get_gcm_id(user_id):
+    cursor = sql.getCursor()
+    cursor.execute("select gcm_id from user where user_id = %s",(user_id))
+
 
 """
 Example:
@@ -129,12 +169,22 @@ http://localhost/cgi-bin/server.cgi?q=send&user_id_sender=3&user_id_receiver=4&m
 #To use when message is read (inserting datetime)
 
 #if query == "read":
-#def read(request):
+def read(request):
+    if not validate_login.is_logged_in(request):
+        return validate_login.failed_login()
+
+    db = sql.getdb()
+    cursor = db.cursor()
+
+    user_id_sender = request.form.get('user_id_sender')
+
     #cursor.execute("update message set `read`=current_timestamp where user_id_sender=" + user_id_sender + " and user_id_receiver=" + user_id_receiver + " and `read` is NULL")
-#    cursor.execute("update message set `read`=current_timestamp where user_id_sender=%s and user_id_receiver=%s and `read` is NULL", ()
-#    cursor.close()
-#    db.commit()
-#    db.close()
+    cursor.execute("update message set `read`=current_timestamp where user_id_sender=%s and user_id_receiver=%s and `read` is NULL", (user_id_sender, request.user_id))
+    cursor.close()
+    db.commit()
+    db.close()
+
+    return Response("")
 
 """
 Example: 
