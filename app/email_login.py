@@ -30,7 +30,7 @@ def email_exists(email):
 def check_login(email, password):
     cursor.execute("select user_id,password from email_user where email=%s", (email))
     row = cursor.fetchone()
-    if row[0] and bcrypt.hashpw(password,row[1]) == row[1]:
+    if row[0] and bcrypt.hashpw(password,row[1].encode('utf8')) == row[1]:
         return row[0]
     return None
 

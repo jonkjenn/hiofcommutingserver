@@ -1,14 +1,20 @@
-import MySQLdb
+import pymysql
+import config
+address='localhost'
+charset='utf8'
+c = config.sql()
+print c
+user=c['user']
+passwd=c['passwd']
+database=c['database']
 
-def getCursor(address='localhost', user='bo14g23', password='bo14g23MySql', database='bo14g23'):
+def getCursor():
     # SQL connection and cursor
-    db = MySQLdb.connect(address, user, password, database)
-    db.set_character_set('utf8')
+    db = pymysql.connect(host=address, user=user, passwd=passwd, db=database, charset=charset)
     cursor = db.cursor()
     return cursor
 
-def getdb(address='localhost', user='bo14g23', password='bo14g23MySql', database='bo14g23'):
+def getdb():
     # SQL connection and cursor
-    db = MySQLdb.connect(address, user, password, database)
-    db.set_character_set('utf8')
+    db = pymysql.connect(host=address, user=user, passwd=passwd, db=database, charset=charset)
     return db
