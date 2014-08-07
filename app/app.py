@@ -1,12 +1,9 @@
 #!/usr/bin/python
 #-*- coding: UTF-8 -*-"
-import site
 #site.addsitedir('/home/jon/code/hiofcommutingserver/app')
 #site.addsitedir('/usr/lib/python2.7/dist-packages/MySQLdb')
 #site.addsitedir('/usr/lib/python2.7/dist-packages/')
 #site.addsitedir('/home/jon/code/hiofcommutingserver/env/lib/python2.7/site-packages')
-import config
-config.sites()
 
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule, NotFound
