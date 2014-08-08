@@ -87,8 +87,6 @@ class App(object):
     def hcserv_ep(self, request, **values):
         import hcserv
         q = request.values.get('q')
-        print "q"
-        print q
 
         if q == 'conversation':
             return hcserv.conversation(request)
