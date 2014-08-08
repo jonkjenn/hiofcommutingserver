@@ -1,8 +1,8 @@
 import pymysql
 import config
-address='localhost'
 charset='utf8'
 c = config.sql()
+address=c['address']
 user=c['user']
 passwd=c['passwd']
 database=c['database']
