@@ -14,8 +14,9 @@ def sites():
         site.addsitedir(Config.get('sites',s))
 
 def sql():
+    address = Config.get('sql̈́', 'address')
     database = Config.get('sql','database')
     user = Config.get('sql','user')
     passwd = Config.get('sql','passwd')
 
-    return {"database":database, "user":user,"passwd":passwd}
+    return {"address": address, "database":database, "user":user,"passwd":passwd}
