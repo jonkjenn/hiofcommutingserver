@@ -3,7 +3,6 @@ import config
 address='localhost'
 charset='utf8'
 c = config.sql()
-print c
 user=c['user']
 passwd=c['passwd']
 database=c['database']

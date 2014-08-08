@@ -6,7 +6,6 @@ returns user ids
 """
 
 import sql
-import MySQLdb
 import json
 import collections
 import validate_login

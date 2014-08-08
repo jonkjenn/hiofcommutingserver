@@ -7,7 +7,6 @@ This module handles HTTP requests from the Hiof-commuting app and
 returns json objects containing user credentials.
 """
 
-import MySQLdb
 import json
 import collections
 import sql
@@ -30,9 +29,9 @@ def study(request):
         c = collections.OrderedDict()
         c['study_id'] = row[0]
         c['institution_name'] = row[1]
-        c['campus_name'] = str(row[2])
-        c['department_name'] = str(row[3])
-        c['name_of_study'] = str(row[4])
+        c['campus_name'] = row[2]
+        c['department_name'] = row[3]
+        c['name_of_study'] = row[4]
         rowarray.append(c)
 
     if rowarray:
@@ -54,8 +53,8 @@ def getAllStudies(request):
         c = collections.OrderedDict()
         c['study_id'] = row[0]
         c['department_id'] = row[1]
-        c['campus_id'] = str(row[2])
-        c['name_of_study'] = str(row[3])
+        c['campus_id'] = row[2]
+        c['name_of_study'] = row[3]
         rowarray.append(c)
 
     if rowarray:

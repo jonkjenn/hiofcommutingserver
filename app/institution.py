@@ -8,7 +8,6 @@ returns json objects containing user credentials.
 """
 
 import sql
-import MySQLdb
 import json
 import collections
 import validate_login

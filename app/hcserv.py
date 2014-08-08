@@ -7,7 +7,6 @@ This module handles HTTP requests from the Hiof-commuting app and
 returns json objects containing messages sendt between users.
 """
 
-import MySQLdb
 import json
 import collections
 import sql
@@ -43,7 +42,7 @@ def conversation(request):
         c = collections.OrderedDict()
         c['user_id_sender'] = row[0]
         c['user_id_receiver'] = row[1]
-        c['message'] = str(row[2])
+        c['message'] = row[2]
         c['sent'] = str(row[3])
         c['read'] = str(row[4])
         rowarrayc.append(c)
@@ -71,14 +70,15 @@ def inbox(request):
     cursor = sql.getCursor()
 
     rowarrayi = []
-    cursor.execute("SELECT * FROM message inner join (select * from message WHERE `user_id_receiver` = %s order by sent desc) a on (message.user_id_sender=a.user_id_sender) group by message.user_id_sender order by a.sent desc", (request.user_id))
+    #cursor.execute("SELECT * FROM message inner join (select * from message WHERE `user_id_receiver` = %s order by sent desc) a on (message.user_id_sender=a.user_id_sender) group by message.user_id_sender order by a.sent desc", (request.user_id))
+    cursor.execute("SELECT m.user_id_sender, m.message, m.sent FROM (select user_id_sender, max(sent) msent from message WHERE `user_id_receiver` = %s group by user_id_sender) a inner join message m on (m.user_id_sender=a.user_id_sender and m.sent = a.msent) order by m.sent desc", (request.user_id))
     rows = cursor.fetchall()
 
     for row in rows:
             c = collections.OrderedDict()
-            c['user_id_sender'] = row[5]
-            c['message'] = str(row[7])
-            c['sent'] = str(row[8])
+            c['user_id_sender'] = row[0]
+            c['message'] = row[1]
+            c['sent'] = str(row[2])
             rowarrayi.append(c)
 
     if rowarrayi:
@@ -207,7 +207,7 @@ def newMessages(request):
         c = collections.OrderedDict()
         c['user_id_sender'] = row[0]
         c['user_id_receiver'] = row[1]
-        c['message'] = str(row[2])
+        c['message'] = row[2]
         c['sent'] = str(row[3])
         rowarrayi.append(c)
 

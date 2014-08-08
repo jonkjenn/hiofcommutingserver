@@ -7,14 +7,10 @@
         inserts user credentials to the db.
 """
 
-import MySQLdb
 import json
 import collections
-import sys
-sys.path.append("/home/jon/code/hiofcommutingserver/env/lib/python2.7/site-packages")
 import bcrypt
 import sql
-
 
 
 def insertEmailUser(request):
@@ -48,6 +44,10 @@ def insertEmailUser(request):
 
     starting_year = request.form.get('starting_year')
     email = request.form.get('email')
+
+    if not email.endswith('@hiof.no'):
+        return
+
     pw = request.form.get('pw').encode('utf-8')
 
     hpw = bcrypt.hashpw(pw,bcrypt.gensalt())
@@ -65,9 +65,6 @@ def insertEmailUser(request):
         user_id = cursor.lastrowid
         cursor.execute(sqlemail, (user_id,email, hpw))
         db.commit()
-    except MySQLdb.Error, e:
-        print e
-        db.rollback()       
     except Exception as ex:
         print ex
         db.rollback()       

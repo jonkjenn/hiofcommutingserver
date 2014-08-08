@@ -56,16 +56,16 @@ def allusrs(request):
         c = collections.OrderedDict()
         c['user_id'] = row[0]
         c['study_id'] = row[1]
-        c['firstname'] = str(row[2])
-        c['surname'] = str(row[3])
-        c['latlon'] = str(row[4])
+        c['firstname'] = row[2]
+        c['surname'] = row[3]
+        c['latlon'] = row[4]
         c['car'] = row[5]
         c['starting_year'] = row[6]
-        c['institution_name'] = str(row[7])
-        c['campus_name'] = str(row[8])
-        c['department_name'] = str(row[9])
-        c['name_of_study'] = str(row[10])
-        c['facebook_id'] = str(row[11])
+        c['institution_name'] = row[7]
+        c['campus_name'] = row[8]
+        c['department_name'] = row[9]
+        c['name_of_study'] = row[10]
+        c['facebook_id'] = row[11]
         rowarray.append(c)
 
     if rowarray:
@@ -140,13 +140,13 @@ def emailUser(request):
         c = collections.OrderedDict()
         c['user_id'] = row[0]
         c['study_id'] = row[1]
-        c['firstname'] = str(row[2])
-        c['surname'] = str(row[3])
-        c['latlon'] = str(row[4])
-        c['institution_name'] = str(row[5])
-        c['campus_name'] = str(row[6])
-        c['department_name'] = str(row[7])
-        c['name_of_study'] = str(row[8])
+        c['firstname'] = row[2]
+        c['surname'] = row[3]
+        c['latlon'] = row[4]
+        c['institution_name'] = row[5]
+        c['campus_name'] = row[6]
+        c['department_name'] = row[7]
+        c['name_of_study'] = row[8]
         c['starting_year'] = row[9]
         c['car'] = row[10]
         c['gcm_id'] = row[11]

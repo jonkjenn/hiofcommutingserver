@@ -7,7 +7,6 @@
 	inserts user credentials to the db.
 """
 
-import MySQLdb
 import sql
 import json
 import collections
@@ -73,10 +72,6 @@ def insertFacebookUser(request):
         cursor.execute(sqlfb, (user_id, fid))
         db.commit()
         success = True
-    except MySQLdb.Error, e:
-        print e
-        db.rollback()       
-        success = False
     except Exception as ex:
         print ex
         db.rollback()       
