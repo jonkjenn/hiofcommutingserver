@@ -11,6 +11,10 @@ import json
 import collections
 import bcrypt
 import sql
+from werkzeug.wrappers import Response
+
+import logging
+log = logging.getLogger(__name__)
 
 
 def insertEmailUser(request):
@@ -46,11 +50,21 @@ def insertEmailUser(request):
     email = request.form.get('email')
 
     if not email.endswith('@hiof.no'):
-        return
+        #log.debug("Wrong email")
+        return Response('', status=400)
+
+    #log.debug("Args:")
+    #log.debug(request.form)
 
     pw = request.form.get('pw').encode('utf-8')
 
-    hpw = bcrypt.hashpw(pw,bcrypt.gensalt())
+    try:
+        hpw = bcrypt.hashpw(pw,bcrypt.gensalt())
+    except Exception as e:
+        log.exception("Exception: ")
+        return Response('', status=400)
+
+    #log.debug("Hash: " + hpw)
 
     db = sql.getdb()
     cursor = db.cursor()
@@ -65,6 +79,9 @@ def insertEmailUser(request):
         user_id = cursor.lastrowid
         cursor.execute(sqlemail, (user_id,email, hpw))
         db.commit()
+        #log.debug("Registration success")
+        return Response('',status=200)
     except Exception as ex:
-        print ex
-        db.rollback()       
+        log.exception("Registration failed")
+        db.rollback()
+        return Response('',status=400)

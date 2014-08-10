@@ -9,11 +9,13 @@ database=c['database']
 
 def getCursor():
     # SQL connection and cursor
-    db = pymysql.connect(host=address, user=user, passwd=passwd, db=database, charset=charset)
+    db = pymysql.connect(host=address, user=user, passwd=passwd, db=database, charset=charset, use_unicode=False)
+    db.autocommit(True)
     cursor = db.cursor()
     return cursor
 
 def getdb():
     # SQL connection and cursor
-    db = pymysql.connect(host=address, user=user, passwd=passwd, db=database, charset=charset)
+    db = pymysql.connect(host=address, user=user, passwd=passwd, db=database, charset=charset, use_unicode=False)
+    db.autocommit(True)
     return db

@@ -9,6 +9,13 @@ from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule, NotFound
 from httplib import HTTPException
 
+import ConfigParser
+import os
+Config = ConfigParser.ConfigParser()
+path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'config'))
+Config.read(path)
+import logging
+logging.basicConfig(filename=Config.get('debug','log'), level=logging.DEBUG)
 
 
 class App(object):
@@ -25,8 +32,8 @@ class App(object):
             Rule('/study.py', endpoint='study_ep'),
             Rule('/regfbusr.py', endpoint='regfbusr_ep'),
             Rule('/delusr.py', endpoint='delusr_ep'),
-            Rule('/reggcm.py', endpoint='reggcm_ep'),
-            Rule('/gcm_test', endpoint='gcm_test_ep')
+            Rule('/reggcm.py', endpoint='reggcm_ep')
+            #Rule('/gcm_test', endpoint='gcm_test_ep')
             ])
     
     def wsgi_app(self, environ, start_response):
@@ -101,8 +108,7 @@ class App(object):
 
     def regusr_ep(self, request, **values):
         from regusr import insertEmailUser
-        insertEmailUser(request)
-        return Response('')
+        return insertEmailUser(request)
 
     def regfbusr_ep(self, request, **values):
         from regfbusr import insertFacebookUser

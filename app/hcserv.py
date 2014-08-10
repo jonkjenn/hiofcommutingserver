@@ -23,6 +23,9 @@ from werkzeug.wrappers import Response
 
 # To use in the conversation activity where both senderID and receiverID is known
 
+import config
+
+gcm_key = config.gcm_key()
 
 #if query == "conversation":
 def conversation(request):
@@ -126,20 +129,20 @@ def test():
     db = sql.getdb()
     cursor = db.cursor()
 
-    user_id_receiver = 42
+    user_id_receiver = 36
     message = "test message"
 
     #cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(" + user_id_sender + "," + user_id_receiver + "," + "\"" + message + "\"" + ", current_timestamp)" )
-    cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(%s,%s,%s,current_timestamp)",(42, user_id_receiver, message))
+    cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(%s,%s,%s,current_timestamp)",(35, user_id_receiver, message))
     db.commit()
 
     import os
-    send_gcm("test", "test", os.environ.get("TEST_GCMID"),"test message",42)
+    send_gcm("test", "test", "APA91bGisBzMoj-n6cy7TKkyK-smGuR0N_mX3rFBYsEOqaS5beam0UMcsaFbscdfdICfar1tb8YjcrX9ZBg2goxaYtDHigxK6LTOuaLO2dNUGo29fq_H7yR-_59GOm4R3IySsDDax5VFTcDxv-n7hENHaO1pIsFsWA","test message",35)
 
 def send_gcm(firstname, surname, receiver, message, sender_id):
     import gcm
     from gcm import GCM
-    g = GCM("AIzaSyCe4qd78W_T_cgNxB_WmfIGcTrF-nkCpmw")
+    g = GCM(gcm_key)
     data = {'message':message, 'sender_firstname':firstname,'sender_surname':surname, 'sender_id':str(sender_id)}
 
     try:

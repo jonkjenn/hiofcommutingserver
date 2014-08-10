@@ -20,3 +20,6 @@ def sql():
     passwd = Config.get('sql','passwd')
 
     return {"address": address, "database":database, "user":user,"passwd":passwd}
+
+def gcm_key():
+    return Config.get('gcm_key','gcm_key')
