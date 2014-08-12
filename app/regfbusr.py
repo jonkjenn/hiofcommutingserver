@@ -86,4 +86,4 @@ def insertFacebookUser(request):
         response.set_cookie('hccook', value=request.session.sid, max_age=3600*24*4, expires=datetime.datetime.utcnow() + datetime.timedelta(days=4))
         return response
     else:
-        return Response("")
+        return Response('{test:"test"}')

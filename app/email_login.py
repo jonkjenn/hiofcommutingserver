@@ -48,15 +48,15 @@ def login(request, **values):
     sid = request.cookies.get('hccook')
 
     if sid:
-        #log.debug("Found session cookie sid: " + sid)
+        log.debug("Found session cookie sid: " + sid)
         if session_store.session_valid(sid):
-            #log.debug("Trying session login")
+            log.debug("Trying session login")
             user_id = session_store.get_userid(sid)
             return login_success(user_id,sid = sid, send_cookie = False)
 
     if 'email' in request.args and 'pass' in request.args:
-        #log.debug("Trying credentials login:")
-        #log.debug(request.args)
+        log.debug("Trying credentials login:")
+        log.debug(request.args)
         email = request.args.get('email')
         password = request.args.get('pass').encode('utf-8')
 
@@ -76,7 +76,7 @@ def login_fail():
 
     c['user_id'] = -200
     ar.append(c)
-    return Response(json.dumps(ar), mimetype='text/plain')
+    return Response(json.dumps(ar), mimetype='text/plain', status=400)
 
 def login_success(user_id,sid=None,send_cookie=False):
     #log.debug("Login success")

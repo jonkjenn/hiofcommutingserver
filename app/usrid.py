@@ -34,4 +34,4 @@ def usr(request, **values):
         j = json.dumps(rowarray, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
 
-    return Response("{}", mimetype='text/plain')
+    return Response('{test:"test"}', mimetype='text/plain')

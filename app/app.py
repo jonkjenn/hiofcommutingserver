@@ -32,7 +32,8 @@ class App(object):
             Rule('/study.py', endpoint='study_ep'),
             Rule('/regfbusr.py', endpoint='regfbusr_ep'),
             Rule('/delusr.py', endpoint='delusr_ep'),
-            Rule('/reggcm.py', endpoint='reggcm_ep')
+            Rule('/reggcm.py', endpoint='reggcm_ep'),
+            Rule('/update_address.py', endpoint='updateaddress_ep')
             #Rule('/gcm_test', endpoint='gcm_test_ep')
             ])
     
@@ -117,17 +118,21 @@ class App(object):
     def delusr_ep(self, request, **values):
         from deleteuser import deleteuser
         deleteuser(request)
-        return Response('')
+        return Response('{test:"test"}')
 
     def reggcm_ep(self, request, **values):
         from reggcm import reggcm
         reggcm(request)
-        return Response('')
+        return Response('{test:"test"}')
 
     def gcm_test_ep(self, request, **values):
         from hcserv import test
         test()
-        return Response('')
+        return Response('{test:"test"}')
+
+    def updateaddress_ep(self, request, **values):
+        from usr import updateAddress
+        return updateAddress(request)
 
 def create_app():
     return App()

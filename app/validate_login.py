@@ -21,4 +21,4 @@ def failed_login():
 
     c['user_id'] = -200
     ar.append(c)
-    return Response(json.dumps(ar), mimetype='text/plain')
+    return Response(json.dumps(ar), mimetype='text/plain', status=400)

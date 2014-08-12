@@ -13,6 +13,9 @@ import sql
 import validate_login
 from werkzeug.wrappers import Response
 
+import logging
+log = logging.getLogger(__name__)
+
 # Args
 #args = cgi.FieldStorage()
 #query = args.getfirst("q", "")
@@ -53,7 +56,7 @@ def conversation(request):
     if rowarrayc:
         j = json.dumps(rowarrayc, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
-    return Response("", mimetype='text/plain')
+    return Response('{test:"test"}', mimetype='text/plain')
 
 
 """
@@ -87,7 +90,7 @@ def inbox(request):
     if rowarrayi:
         j = json.dumps(rowarrayi, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
-    return Response("", mimetype='text/plain')
+    return Response('{test:"test"}', mimetype='text/plain')
 
 """
 Example:
@@ -101,29 +104,36 @@ def send(request):
     if not validate_login.is_logged_in(request):
         return validate_login.failed_login()
 
-    db = sql.getdb()
-    cursor = db.cursor()
+    try:
+        db = sql.getdb()
+        cursor = db.cursor()
 
-    user_id_receiver = request.form.get('user_id_receiver')
-    message = request.form.get('message')
+        user_id_receiver = request.form.get('user_id_receiver')
+        message = request.form.get('message')
 
-    #cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(" + user_id_sender + "," + user_id_receiver + "," + "\"" + message + "\"" + ", current_timestamp)" )
-    cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(%s,%s,%s,current_timestamp)",(request.user_id, user_id_receiver, message))
-    db.commit()
+        #log.debug(request.form)
 
-    #cursor.execute("select gcm_id from user where user_id = %s", (user_id_receiver))
-    cursor.execute("select firstname, surname, gcm_id from user where user_id = %s", (request.user_id_receiver))
-    row = cursor.fetchone()
-    receiver = row[2]
-    firstname = row[0]
-    surname = row[1]
+        #cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(" + user_id_sender + "," + user_id_receiver + "," + "\"" + message + "\"" + ", current_timestamp)" )
+        cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(%s,%s,%s,current_timestamp)",(request.user_id, user_id_receiver, message))
+        db.commit()
 
-    db.close()
+        #cursor.execute("select gcm_id from user where user_id = %s", (user_id_receiver))
+        cursor.execute("select firstname, surname from user where user_id = %s", (request.user_id))
+        row = cursor.fetchone()
+        firstname = row[0]
+        surname = row[1]
 
-    send_gcm(name, receiver, message, request.user_id)
-    #send_gcm(firstname, surname, receiver, message, 42)
+        cursor.execute("select gcm_id from user where user_id = %s", (user_id_receiver))
+        row = cursor.fetchone()
+        receiver = row[0]
 
-    return Response(message, mimetype='text/plain')
+        db.close()
+
+        send_gcm(firstname, surname, receiver, message, request.user_id)
+        return Response(message, mimetype='text/plain', status=200)
+    except Exception as e:
+        #log.exception("Send exception: ")
+        return Response('{test:test}',status=400)
 
 def test():
     db = sql.getdb()
@@ -143,14 +153,15 @@ def send_gcm(firstname, surname, receiver, message, sender_id):
     import gcm
     from gcm import GCM
     g = GCM(gcm_key)
+    #log.debug("Gcm_key: " + gcm_key)
     data = {'message':message, 'sender_firstname':firstname,'sender_surname':surname, 'sender_id':str(sender_id)}
 
     try:
-        print "Sending gcm"
-        print receiver
+        #log.debug("Sending: ")
+        #log.debug(data)
         g.plaintext_request(registration_id=receiver,data=data)
     except gcm.gcm.GCMInvalidRegistrationException:
-        print "Invalid reg id"
+        #log.exception("Gcm failed: ")
         db = sql.getdb()
         cursor = db.cursor()
         cursor.execute("update user set gcm_id = null where gcm_id = %s", (receiver))
@@ -187,7 +198,7 @@ def read(request):
     db.commit()
     db.close()
 
-    return Response("")
+    return Response('{test:"test"}')
 
 """
 Example: 
@@ -217,7 +228,7 @@ def newMessages(request):
     if rowarrayi:
         j= json.dumps(rowarrayi, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
-    return Response("", mimetype='text/plain')
+    return Response('{test:"test"}', mimetype='text/plain')
 
 """
 Example:

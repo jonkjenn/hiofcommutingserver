@@ -14,6 +14,9 @@ import validate_login
 from werkzeug.wrappers import Response
 import facebook
 
+import logging
+log = logging.getLogger(__name__)
+
 def usr(request):
     if not validate_login.is_logged_in(request):
         return validate_login.failed_login()
@@ -37,7 +40,7 @@ def usr(request):
     if rowarray:
         j = json.dumps(rowarray, ensure_ascii=False)
         return Response(j,mimetype='text/plain')
-    return Response("{}")
+    return Response('{test:"test"}')
 
 
 # Fetching all users with studies
@@ -156,7 +159,31 @@ def emailUser(request):
         j = json.dumps(rowarray, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
 
-    return Response("{}", mimetype='text/plain')
+    return Response('{test:"test"}', mimetype='text/plain')
+
+def updateAddress(request):
+    if not validate_login.is_logged_in(request):
+        return validate_login.failed_login()
+
+    #log.debug(request.form)
+
+    lat = request.form.get('lat')
+    lon = request.form.get('lon')
+
+    if lat and lon:
+
+        try:
+            db = sql.getdb()
+            cursor = db.cursor()
+            cursor.execute("UPDATE user set latlon = POINT(%s,%s) where user_id = %s", (lat,lon,request.user_id))
+            db.commit()
+        except Exception as e:
+            #log.exception("Exception:")
+            db.rollback()
+            return Response('{test:test}',status=400)
+
+        return Response('{test:test}',status=200)
+    return Response('{test:test}',status=400)
 
 """
 Example:

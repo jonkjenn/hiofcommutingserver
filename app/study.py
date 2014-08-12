@@ -37,7 +37,7 @@ def study(request):
     if rowarray:
         j = json.dumps(rowarray, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
-    return Response("{}", mimetype='text/plain')
+    return Response('{test:"test"}', mimetype='text/plain')
 		
 def getAllStudies(request):
     #if not validate_login.is_logged_in(request):
@@ -60,7 +60,7 @@ def getAllStudies(request):
     if rowarray:
         j = json.dumps(rowarray, ensure_ascii=False)
         return Response(j, mimetype='text/plain')
-    return Response("{}", mimetype='text/plain')
+    return Response('{test:"test"}', mimetype='text/plain')
 
 """
 Example:
