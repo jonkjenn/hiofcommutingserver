@@ -153,15 +153,16 @@ def send_gcm(firstname, surname, receiver, message, sender_id):
     import gcm
     from gcm import GCM
     g = GCM(gcm_key)
-    #log.debug("Gcm_key: " + gcm_key)
+    log.debug("Gcm_key: " + gcm_key)
     data = {'message':message, 'sender_firstname':firstname,'sender_surname':surname, 'sender_id':str(sender_id)}
 
     try:
-        #log.debug("Sending: ")
-        #log.debug(data)
+        log.debug("Sending: ")
+        log.debug(data)
+        log.debug("Receiver: " + receiver)
         g.plaintext_request(registration_id=receiver,data=data)
     except gcm.gcm.GCMInvalidRegistrationException:
-        #log.exception("Gcm failed: ")
+        log.exception("Gcm failed: ")
         db = sql.getdb()
         cursor = db.cursor()
         cursor.execute("update user set gcm_id = null where gcm_id = %s", (receiver))

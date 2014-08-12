@@ -10,13 +10,14 @@ def reggcm(request):
         return validate_login.failed_login()
 
     gcmId = request.form.get('gcmId')
+    gcmVersion = request.form.get('gcmVersion')
 
-    if not gcmId:
+    if not (gcmId and gcmVersion):
         return
 
     db = sql.getdb()
     cursor = db.cursor()
 
-    cursor.execute("update user set gcm_id = %s where user_id = %s", (gcmId, request.user_id))
+    cursor.execute("update user set gcm_id = %s, gcm_version = %s where user_id = %s", (gcmId,gcmVersion, request.user_id))
 
     db.commit()
