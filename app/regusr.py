@@ -50,21 +50,21 @@ def insertEmailUser(request):
     email = request.form.get('email')
 
     if not email.endswith('@hiof.no'):
-        #log.debug("Wrong email")
+        ##log.debug("Wrong email")
         return Response('{test:"test"}', status=400)
 
-    #log.debug("Args:")
-    #log.debug(request.form)
+    ##log.debug("Args:")
+    ##log.debug(request.form)
 
     pw = request.form.get('pw').encode('utf-8')
 
     try:
         hpw = bcrypt.hashpw(pw,bcrypt.gensalt())
     except Exception as e:
-        log.exception("Exception: ")
+        #log.exception("Exception: ")
         return Response('{test:"test"}', status=400)
 
-    #log.debug("Hash: " + hpw)
+    ##log.debug("Hash: " + hpw)
 
     db = sql.getdb()
     db.autocommit(False)
@@ -80,9 +80,9 @@ def insertEmailUser(request):
         user_id = cursor.lastrowid
         cursor.execute(sqlemail, (user_id,email, hpw))
         db.commit()
-        log.debug("Registration success")
+        #log.debug("Registration success")
         return Response('{test:"test"}',status=200)
     except Exception as ex:
-        log.exception("Registration failed")
+        #log.exception("Registration failed")
         db.rollback()
         return Response('{test:"test"}',status=400)

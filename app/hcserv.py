@@ -111,7 +111,7 @@ def send(request):
         user_id_receiver = request.form.get('user_id_receiver')
         message = request.form.get('message')
 
-        #log.debug(request.form)
+        ##log.debug(request.form)
 
         #cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(" + user_id_sender + "," + user_id_receiver + "," + "\"" + message + "\"" + ", current_timestamp)" )
         cursor.execute("insert into message(user_id_sender, user_id_receiver, message, sent) values(%s,%s,%s,current_timestamp)",(request.user_id, user_id_receiver, message))
@@ -132,7 +132,7 @@ def send(request):
         send_gcm(firstname, surname, receiver, message, request.user_id)
         return Response(message, mimetype='text/plain', status=200)
     except Exception as e:
-        #log.exception("Send exception: ")
+        ##log.exception("Send exception: ")
         return Response('{test:test}',status=400)
 
 def test():
@@ -153,16 +153,16 @@ def send_gcm(firstname, surname, receiver, message, sender_id):
     import gcm
     from gcm import GCM
     g = GCM(gcm_key)
-    log.debug("Gcm_key: " + gcm_key)
+    #log.debug("Gcm_key: " + gcm_key)
     data = {'message':message, 'sender_firstname':firstname,'sender_surname':surname, 'sender_id':str(sender_id)}
 
     try:
-        log.debug("Sending: ")
-        log.debug(data)
-        log.debug("Receiver: " + receiver)
+        #log.debug("Sending: ")
+        #log.debug(data)
+        #log.debug("Receiver: " + receiver)
         g.plaintext_request(registration_id=receiver,data=data)
     except gcm.gcm.GCMInvalidRegistrationException:
-        log.exception("Gcm failed: ")
+        #log.exception("Gcm failed: ")
         db = sql.getdb()
         cursor = db.cursor()
         cursor.execute("update user set gcm_id = null where gcm_id = %s", (receiver))

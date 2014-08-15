@@ -166,7 +166,7 @@ def updateAddress(request):
     if not validate_login.is_logged_in(request):
         return validate_login.failed_login()
 
-    #log.debug(request.form)
+    ##log.debug(request.form)
 
     lat = request.form.get('lat')
     lon = request.form.get('lon')
@@ -179,7 +179,7 @@ def updateAddress(request):
             cursor.execute("UPDATE user set latlon = POINT(%s,%s) where user_id = %s", (lat,lon,request.user_id))
             db.commit()
         except Exception as e:
-            #log.exception("Exception:")
+            ##log.exception("Exception:")
             db.rollback()
             return Response('{test:test}',status=400)
 
