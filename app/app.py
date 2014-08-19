@@ -15,7 +15,10 @@ Config = ConfigParser.ConfigParser()
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'config'))
 Config.read(path)
 import logging
-logging.basicConfig(filename=Config.get('debug','log'), level=logging.DEBUG)
+try:
+    logging.basicConfig(filename=Config.get('debug','log'), level=logging.DEBUG)
+except:
+    pass
 
 
 class App(object):

@@ -13,12 +13,12 @@ import sql
 import validate_login
 from werkzeug.wrappers import Response
 
-cursor = sql.getCursor()
 
 # Fetching departments
 
 def department(request):
 
+    cursor = sql.getCursor()
     rowarray = []
     cursor.execute("select * from department")
     rows = cursor.fetchall()
