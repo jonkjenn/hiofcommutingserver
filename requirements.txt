@@ -1,5 +1,5 @@
 Beaker==1.6.4
-Werkzeug==0.9.6
+Werkzeug==0.15.3
 bcrypt
 PyMySQL
 facebook-sdk==0.4.0
